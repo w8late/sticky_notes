@@ -9,4 +9,5 @@
     border-radius: 10%; 
     border-color: red;
     border: groove 0.375em red;
+    resize: none;
 }
