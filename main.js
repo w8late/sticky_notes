@@ -3,7 +3,7 @@
 let notes = document.getElementsByClassName("note");
 Array.from(notes).forEach(regsisterDrag);
 
-//https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging/74219113#74219113
+//https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging
 
 function regsisterDrag(elem) {
     elem.addEventListener("pointerdown", ev => elem.setPointerCapture(ev.pointerId));
