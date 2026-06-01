@@ -1,5 +1,27 @@
 "use strict";
 
+const debug = true;
+function dbg(msg) {
+    if (debug) console.log(msg)
+}
+
+const noteColors = {
+    red: {
+        background: "#f08080",
+        borderColor: "red",
+    },
+    blue: {
+        background: "#8980f0",
+        borderColor: "blue",
+    },
+    green: {
+        background: "#80f087",
+        borderColor: "green",
+    },
+};
+
+const noteColorsKeys = Object.keys(noteColors);
+
 class Sticky {
     constructor() {
         this.styleLeft = `${Math.random() * window.innerWidth}px`
@@ -7,20 +29,24 @@ class Sticky {
     }
 }
 
- function addStickyToDocument(s, doc) {
-        let textArea = doc.createElement("textarea");
-        textArea.classList.add("note");
-        textArea.placeholder = "Type your notes here!"
-        textArea.style.left = s.styleLeft;
-        textArea.style.top = s.styleTop;
-        regsisterDrag(textArea);
-        doc.body.appendChild(textArea)
+function addStickyToDocument(s, doc) {
+    const color = noteColors[noteColorsKeys[Math.floor(Math.random() * noteColorsKeys.length)]];
+    let textArea = doc.createElement("textarea");
+    textArea.name = "stickyNote";
+    textArea.classList.add("note");
+    textArea.placeholder = "Type your notes here!"
+    textArea.style.left = s.styleLeft;
+    textArea.style.top = s.styleTop;
+    textArea.style.borderColor = color.borderColor;
+    textArea.style.background = color.background;
+    regsisterDrag(textArea);
+    doc.body.appendChild(textArea)
 }
 
 let createdNotes, item;
 // get created notes from storage
 if ((item = localStorage.getItem("createdNotes")) !== null) { 
-    console.log(item);
+    dbg(item);
     createdNotes = JSON.parse(item);
     for (let n of createdNotes) {
         addStickyToDocument(n, document);
