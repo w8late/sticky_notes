@@ -9,9 +9,17 @@
     border-radius: 0% 15% 15% 15%; 
     border: outset 0.375em red;
     resize: none;
-    transition: transform 0.2s;
+    transition: transform 0.1s;
+    animation-name: bounce-in;
+    animation-duration: 1s;
 }
 
 .note:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+}
+
+@keyframes bounce-in {
+    from {transform:scale(0)}
+    40% {transform:scale(1.2)}
+    to {transform:scale(1)}
 }
