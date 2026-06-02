@@ -22,10 +22,6 @@ const noteColors = {
 
 const noteColorsKeys = Object.keys(noteColors);
 
-function mRandomInteger(n) {
-    return Math.floor(Math.random() * n);
-}
-
 class StickySaveData {
     constructor() {
         this.styleLeft = `${Math.random() * window.innerWidth}px`;
@@ -35,6 +31,33 @@ class StickySaveData {
 }
 
 let savedNotes, item;
+
+// get created notes from storage
+if ((item = localStorage.getItem("savedNotes")) !== null) { 
+    dbg(item);
+    savedNotes = JSON.parse(item);
+    for (let n of savedNotes) {
+        addStickyToDocument(n, document);
+    }
+} else { // if this is the first time, then create a new list
+    savedNotes = new Array();
+    localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
+    console.error("could not parse localStorage.savedNotes");
+}
+
+// create new sticky note on double click
+document.addEventListener("contextmenu", ev => {
+    ev.preventDefault();
+    saveNewSticky();
+});
+
+
+function saveNewSticky() {
+    let s = new StickySaveData;
+    addStickyToDocument(s, document); 
+    savedNotes.push(s); 
+    localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); // save to storage
+}
 
 function addStickyToDocument(s, doc) {
     const color = noteColors[noteColorsKeys[mRandomInteger(noteColorsKeys.length)]];
@@ -62,27 +85,6 @@ function addStickyToDocument(s, doc) {
 }
 
 
-// get created notes from storage
-if ((item = localStorage.getItem("savedNotes")) !== null) { 
-    dbg(item);
-    savedNotes = JSON.parse(item);
-    for (let n of savedNotes) {
-        addStickyToDocument(n, document);
-    }
-} else { // if this is the first time, then create a new list
-    savedNotes = new Array();
-    localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
-    console.error("could not parse localStorage.savedNotes");
-}
-
-// create new sticky note on double click
-document.addEventListener("dblclick", ev => {
-    let s = new StickySaveData;
-    addStickyToDocument(s, document); 
-    savedNotes.push(s); 
-    localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); // save to storage
-});
-
 //https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging
 
 function regsisterDrag(elem) {
@@ -95,4 +97,8 @@ function regsisterDrag(elem) {
             elem.style.top = `${elem.offsetTop + ev.movementY}px`
         }
     })
+}
+
+function mRandomInteger(n) {
+    return Math.floor(Math.random() * n);
 }
