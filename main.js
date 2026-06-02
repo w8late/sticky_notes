@@ -22,55 +22,72 @@ const noteColors = {
 
 const noteColorsKeys = Object.keys(noteColors);
 
-class Sticky {
+function mRandomInteger(n) {
+    return Math.floor(Math.random() * n);
+}
+
+class StickySaveData {
     constructor() {
-        this.styleLeft = `${Math.random() * window.innerWidth}px`
-        this.styleTop = `${Math.random() * window.innerHeight}px`
+        this.styleLeft = `${Math.random() * window.innerWidth}px`;
+        this.styleTop = `${Math.random() * window.innerHeight}px`;
+        this.value = "";
     }
 }
 
+let savedNotes, item;
+
 function addStickyToDocument(s, doc) {
-    const color = noteColors[noteColorsKeys[Math.floor(Math.random() * noteColorsKeys.length)]];
+    const color = noteColors[noteColorsKeys[mRandomInteger(noteColorsKeys.length)]];
     let textArea = doc.createElement("textarea");
     textArea.name = "stickyNote";
     textArea.classList.add("note");
     textArea.placeholder = "Type your notes here!"
+    textArea.value = s.value ?? "";
     textArea.style.left = s.styleLeft;
     textArea.style.top = s.styleTop;
     textArea.style.borderColor = color.borderColor;
     textArea.style.background = color.background;
+    textArea.addEventListener("input", ev => { 
+        s.value = ev.target.value;
+        localStorage.setItem("savedNotes", JSON.stringify(savedNotes))
+    });
+    textArea.addEventListener("pointerup",  ev => {
+        s.styleLeft = `${textArea.style.left}`;
+        s.styleTop = `${textArea.style.top}`;
+
+        localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); 
+     });
     regsisterDrag(textArea);
     doc.body.appendChild(textArea)
 }
 
-let createdNotes, item;
+
 // get created notes from storage
-if ((item = localStorage.getItem("createdNotes")) !== null) { 
+if ((item = localStorage.getItem("savedNotes")) !== null) { 
     dbg(item);
-    createdNotes = JSON.parse(item);
-    for (let n of createdNotes) {
+    savedNotes = JSON.parse(item);
+    for (let n of savedNotes) {
         addStickyToDocument(n, document);
     }
 } else { // if this is the first time, then create a new list
-    createdNotes = new Array();
-    localStorage.setItem("createdNotes", JSON.stringify(createdNotes));
-    console.error("could not parse localStorage.createdNotes");
+    savedNotes = new Array();
+    localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
+    console.error("could not parse localStorage.savedNotes");
 }
-    createdNotes.push(new Sticky(document));
 
 // create new sticky note on double click
 document.addEventListener("dblclick", ev => {
-    let s = new Sticky;
+    let s = new StickySaveData;
     addStickyToDocument(s, document); 
-    createdNotes.push(s); 
-    localStorage.setItem("createdNotes", JSON.stringify(createdNotes)); // save to storage
+    savedNotes.push(s); 
+    localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); // save to storage
 });
 
 //https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging
 
 function regsisterDrag(elem) {
     elem.addEventListener("pointerdown", ev => elem.setPointerCapture(ev.pointerId));
-    elem.addEventListener("pointerup", ev => elem.releasePointerCapture(ev.pointerId));
+    elem.addEventListener("pointerup",  ev => elem.releasePointerCapture(ev.pointerId));
     elem.addEventListener("pointermove", ev => {
         // if the pointer is on this element, drag it 
         if (elem.hasPointerCapture(ev.pointerId)) {
