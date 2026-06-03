@@ -9,7 +9,7 @@
     border-radius: 0% 15% 15% 15%; 
     border: outset 0.375em red;
     resize: none;
-    transition: transform 0.1s;
+    transition: transform 0.2s;
     animation-name: bounce-in;
     animation-duration: 1s;
     box-shadow: 5px 5px 5px 1px #000000a0;

@@ -1,48 +1,11 @@
 "use strict";
 
-const debug = true;
-function dbg(msg) {
-    if (debug) console.log(msg)
-}
-
-const noteColors = {
-    red: {
-        background: "#f08080",
-        borderColor: "red",
-    },
-    blue: {
-        background: "#8980f0",
-        borderColor: "blue",
-    },
-    green: {
-        background: "#80f087",
-        borderColor: "green",
-    },
-};
-
-const noteColorsKeys = Object.keys(noteColors);
-
 class StickySaveData {
     constructor() {
-        this.styleLeft = `${Math.random() * window.innerWidth}px`;
-        this.styleTop = `${Math.random() * window.innerHeight}px`;
+        this.styleLeft = `${Math.random() * (window.innerWidth-150)}px`;
+        this.styleTop = `${Math.random() * (window.innerHeight-150)}px`;
         this.value = "";
     }
-}
-
-let savedNotes, item;
-
-// get created notes from storage
-if ((item = localStorage.getItem("savedNotes")) !== null) { 
-    dbg(item);
-    savedNotes = JSON.parse(item);
-    for (let n of savedNotes) {
-        addStickyToDocument(n, document);
-    }
-} else { // if this is the first time, then create a new list
-    savedNotes = new Array();
-    localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
-    console.error("could not parse localStorage.savedNotes");
 }
 
 // create new sticky note on double click
@@ -51,43 +14,64 @@ document.addEventListener("contextmenu", ev => {
     saveNewSticky();
 });
 
+let allNotes = [];
+
++function loadNotes(){
+    let item;
+    // get created notes from storage
+    if ((item = localStorage.getItem("notes")) !== null) { 
+        Utility.dbg(item);
+        allNotes = JSON.parse(item);
+        for (let n of allNotes) {
+            addStickyToDocument(n, document);
+        }
+    } else { // if this is the first time, then create a new list
+        console.error("could not parse localStorage.allNotes");
+    }
+    allNotes.save = function() {
+        localStorage.setItem("notes", JSON.stringify(this));
+    }
+}()
 
 function saveNewSticky() {
-    let s = new StickySaveData;
+    let s = new StickySaveData();
     addStickyToDocument(s, document); 
-    savedNotes.push(s); 
-    localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); // save to storage
+    allNotes.push(s); 
+    allNotes.save();
+}
+
+function copyStickySave(t, {value, styleLeft, styleTop}) {
+    t.value = value;
+    t.style.left = styleLeft;
+    t.style.top = styleTop;
 }
 
 function addStickyToDocument(s, doc) {
-    const color = noteColors[noteColorsKeys[mRandomInteger(noteColorsKeys.length)]];
+    const color = Color.randomColor();
     let textArea = doc.createElement("textarea");
     textArea.name = "stickyNote";
     textArea.classList.add("note");
     textArea.placeholder = "Type your notes here!"
-    textArea.value = s.value ?? "";
-    textArea.style.left = s.styleLeft;
-    textArea.style.top = s.styleTop;
+    copyStickySave(textArea, s);
     textArea.style.borderColor = color.borderColor;
     textArea.style.background = color.background;
     textArea.addEventListener("input", ev => { 
         s.value = ev.target.value;
-        localStorage.setItem("savedNotes", JSON.stringify(savedNotes))
+        allNotes.save();
     });
     textArea.addEventListener("pointerup",  ev => {
         s.styleLeft = `${textArea.style.left}`;
         s.styleTop = `${textArea.style.top}`;
-
-        localStorage.setItem("savedNotes", JSON.stringify(savedNotes)); 
+        allNotes.save();
      });
-    regsisterDrag(textArea);
+    Utility.dbg(textArea)
+    addDragListeners(textArea);
     doc.body.appendChild(textArea)
 }
 
-
 //https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging
 
-function regsisterDrag(elem) {
+function addDragListeners(elem) {
     elem.addEventListener("pointerdown", ev => elem.setPointerCapture(ev.pointerId));
     elem.addEventListener("pointerup",  ev => elem.releasePointerCapture(ev.pointerId));
     elem.addEventListener("pointermove", ev => {
@@ -97,8 +81,4 @@ function regsisterDrag(elem) {
             elem.style.top = `${elem.offsetTop + ev.movementY}px`
         }
     })
-}
-
-function mRandomInteger(n) {
-    return Math.floor(Math.random() * n);
 }
