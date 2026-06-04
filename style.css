@@ -24,6 +24,7 @@
     background: rgba(255,255,255);
     transition: transform 0.2s;
     z-index: 99;
+    user-select: none;
 }
 
 .button:hover {
