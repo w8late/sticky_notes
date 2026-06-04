@@ -21,7 +21,9 @@
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     padding: 5px;
     border-radius: 18px;
+    background: rgba(255,255,255);
     transition: transform 0.2s;
+    z-index: 99;
 }
 
 .button:hover {
@@ -29,7 +31,7 @@
 }
 
 .button:active {
-    transform: scale(1.4);
+    transform: scale(0.6);
 }
 
 .note:hover {
@@ -40,4 +42,10 @@
     from {transform:scale(0)}
     40% {transform:scale(1.2)}
     to {transform:scale(1)}
+}
+
+@keyframes bounce-out {
+    from {transform:scale(1)}
+    60% {transform:scale(1.2)}
+    to {transform:scale(0)}
 }
