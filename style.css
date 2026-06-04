@@ -12,7 +12,24 @@
     transition: transform 0.2s;
     animation-name: bounce-in;
     animation-duration: 1s;
-    box-shadow: 5px 5px 5px 1px #000000a0;
+    box-shadow: 7px 7px 7px 2px #000000a0;
+}
+
+.button {
+    position: fixed;
+    bottom: 10px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 5px;
+    border-radius: 18px;
+    transition: transform 0.2s;
+}
+
+.button:hover {
+    transform: scale(1.1);
+}
+
+.button:active {
+    transform: scale(1.4);
 }
 
 .note:hover {
