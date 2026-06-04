@@ -34,6 +34,7 @@ const Notes = {
     all: [],
     shouldSave: false,
     div: document.getElementById("notes"),
+    maxZIndex: 0,
 }
 
 //save every 5 secs
@@ -110,6 +111,7 @@ function addDragListeners(elem) {
         elem.setPointerCapture(ev.pointerId); 
         offsetX = ev.offsetX;
         offsetY = ev.offsetY;
+        elem.style.zIndex = Notes.maxZIndex++;
     });
     elem.addEventListener("pointerup",  ev => elem.releasePointerCapture(ev.pointerId));
     elem.addEventListener("pointermove", ev => {
