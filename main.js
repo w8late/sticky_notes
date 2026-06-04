@@ -18,21 +18,22 @@ document.addEventListener("contextmenu", ev => {
 });
 
 // ..and when pressing the button
-
 +function(){
-    let newBtn = document.getElementById("new");
-    newBtn.addEventListener("click", ev => {
-        Utility.dbg(ev.target);
-        if (ev.target.name !== "stickyNote") {
-          ev.preventDefault();
-          saveNewSticky();
+    document.getElementById("clear").addEventListener("click", ev => {
+        for (let n of Notes.div.children) {
+            n.style.animationName = "bounce-out";
         }
+
+        setTimeout(() => Notes.div.replaceChildren(), 900);
+        Notes.all.length = 0;
+        Notes.shouldSave = true;
     });
 }()
 
 const Notes = {
     all: [],
     shouldSave: false,
+    div: document.getElementById("notes"),
 }
 
 //save every 5 secs
@@ -90,7 +91,7 @@ function addStickyToDocument(s) {
     textArea.addEventListener("contextmenu", ev => {
         Utility.dbg(ev.target);
         textArea.style.animationName = "bounce-out";
-        setTimeout(() =>document.body.removeChild(textArea), 900);
+        setTimeout(() => Notes.div.removeChild(textArea), 900);
         ev.preventDefault();
         Notes.all.splice(Notes.all.indexOf(s), 1);
         Notes.shouldSave = true;
@@ -98,7 +99,7 @@ function addStickyToDocument(s) {
     });
     Utility.dbg(textArea);
     addDragListeners(textArea);
-    document.body.appendChild(textArea);
+    Notes.div.appendChild(textArea);
 }
 
 //https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging *edited*
@@ -114,8 +115,8 @@ function addDragListeners(elem) {
     elem.addEventListener("pointermove", ev => {
         // if the pointer is on this element, drag it 
         if (elem.hasPointerCapture(ev.pointerId)) {
-            elem.style.left = `${ev.pageX -offsetX/* ev.movementX */}px`;
-            elem.style.top = `${ev.pageY -offsetY/*ev.movementY*/}px`;
+            elem.style.left = `${ev.pageX-offsetX/* ev.movementX */}px`;
+            elem.style.top = `${ev.pageY-offsetY/*ev.movementY*/}px`;
         }
     });
 }
