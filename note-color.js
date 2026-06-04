@@ -1,4 +1,6 @@
-const noteColors = {
+"use strict";
+
+const noteColors = Object.freeze({
     red: {
         background: "#f08080",
         borderColor: "red",
@@ -15,13 +17,11 @@ const noteColors = {
         background: "#e9ed81",
         borderColor: "yellow",
     }
-};
+});
 
-const noteColorsKeys = Object.keys(noteColors);
-const noteColorsValues = Object.values(noteColors);
-
-let Color = {};
+const Color = {};
 
 Color.randomColor = function() {
-    return noteColors[noteColorsKeys[Utility.randomInteger(noteColorsKeys.length)]]
+    const keys = Object.keys(noteColors);
+    return noteColors[keys[Utility.randomInteger(keys.length)]]
 }

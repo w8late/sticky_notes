@@ -1,4 +1,6 @@
-let Utility = {};
+"use strict";
+
+const Utility = {};
 const debug = false;
 Utility.dbg = function(msg) {
     if (debug) console.log(msg);
