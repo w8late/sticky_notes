@@ -2,7 +2,7 @@
 
 const Utility = {};
 const debug = false;
-Utility.dbg = function(msg) {
+Utility.dbg = function(...msg) {
     if (debug) console.log(msg);
 }
 
