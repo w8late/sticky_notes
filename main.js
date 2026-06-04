@@ -90,7 +90,7 @@ function addStickyToDocument(s) {
     textArea.addEventListener("contextmenu", ev => {
         Utility.dbg(ev.target);
         textArea.style.animationName = "bounce-out";
-        setTimeout(() =>document.body.removeChild(textArea), 1000);
+        setTimeout(() =>document.body.removeChild(textArea), 900);
         ev.preventDefault();
         Notes.all.splice(Notes.all.indexOf(s), 1);
         Notes.shouldSave = true;
@@ -101,16 +101,21 @@ function addStickyToDocument(s) {
     document.body.appendChild(textArea);
 }
 
-//https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging
+//https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging *edited*
 
 function addDragListeners(elem) {
-    elem.addEventListener("pointerdown", ev => elem.setPointerCapture(ev.pointerId));
+    let offsetX = 0, offsetY = 0;
+    elem.addEventListener("pointerdown", ev => { 
+        elem.setPointerCapture(ev.pointerId); 
+        offsetX = ev.offsetX;
+        offsetY = ev.offsetY;
+    });
     elem.addEventListener("pointerup",  ev => elem.releasePointerCapture(ev.pointerId));
     elem.addEventListener("pointermove", ev => {
         // if the pointer is on this element, drag it 
         if (elem.hasPointerCapture(ev.pointerId)) {
-            elem.style.left = `${elem.offsetLeft + ev.movementX}px`;
-            elem.style.top = `${elem.offsetTop + ev.movementY}px`;
+            elem.style.left = `${ev.pageX -offsetX/* ev.movementX */}px`;
+            elem.style.top = `${ev.pageY -offsetY/*ev.movementY*/}px`;
         }
     });
 }
