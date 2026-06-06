@@ -2,8 +2,9 @@
 
 const Utility = {};
 const debug = false;
-Utility.dbg = function(...msg) {
-    if (debug) console.log(msg);
+Utility.maxZIndex = 1;
+Utility.dbg = function(...msgs) {
+    if (debug) console.log(msgs);
 }
 
 Utility.randomInteger = function(n = Number.MAX_SAFE_INTEGER) {
