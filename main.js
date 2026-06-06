@@ -1,5 +1,8 @@
 "use strict";
 
+import { incrMaxZIndex } from "./util.js";
+import * as Color from "./note-color.js";
+
 class StickySaveData {
     constructor() {
         this.styleLeft = `${Math.random() * (window.innerWidth-150)}px`;
@@ -17,7 +20,6 @@ const Notes = {
 
 // create new sticky note on right click (on the background)
 document.addEventListener("contextmenu", ev => {
-    Utility.dbg(ev.target);
     if (ev.target.name !== "stickyNote") {
         ev.preventDefault();
         saveNewSticky();
@@ -51,7 +53,6 @@ setInterval(() => {
 +function(){
     let item;
     if ((item = localStorage.getItem("notes")) !== null) { 
-        Utility.dbg(item);
         Notes.all = JSON.parse(item);
         for (let n of Notes.all) {
             addStickyToDocument(n);
@@ -96,7 +97,6 @@ function addStickyToDocument(s) {
         Notes.shouldSave = true;
     });
     textArea.addEventListener("contextmenu", ev => {
-        Utility.dbg(ev.target);
         textArea.style.animationName = "bounce-out";
         setTimeout(() => { 
             try { Notes.div.removeChild(textArea); } catch(err){}
@@ -115,8 +115,6 @@ function addStickyToDocument(s) {
     clearBtn.style.animationName = "slide-in";
     clearBtn.style.display = "block"; 
     
-
-    Utility.dbg(textArea);
     addDragListeners(textArea);
     Notes.div.appendChild(textArea);
 }
@@ -129,7 +127,7 @@ function addDragListeners(elem) {
         elem.setPointerCapture(ev.pointerId); 
         offsetX = ev.offsetX;
         offsetY = ev.offsetY;
-        elem.style.zIndex = Utility.maxZIndex++;
+        elem.style.zIndex = incrMaxZIndex();
         clearBtn.style.zIndex++;
     });
     elem.addEventListener("pointerup", ev => elem.releasePointerCapture(ev.pointerId));

@@ -1,5 +1,7 @@
 "use strict";
 
+import { randomInteger } from "./util.js";
+
 const noteColors = Object.freeze({
     red: {
         background: "#f08080",
@@ -19,9 +21,7 @@ const noteColors = Object.freeze({
     }
 });
 
-const Color = {};
-
-Color.randomColor = function() {
+export function randomColor() {
     const keys = Object.keys(noteColors);
-    return noteColors[keys[Utility.randomInteger(keys.length)]]
+    return noteColors[keys[randomInteger(keys.length)]]
 }

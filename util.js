@@ -1,12 +1,11 @@
 "use strict";
 
-const Utility = {};
-const debug = false;
-Utility.maxZIndex = 1;
-Utility.dbg = function(...msgs) {
-    if (debug) console.log(msgs);
+let maxZIndex = 1;
+
+export function incrMaxZIndex() {
+    return maxZIndex++;
 }
 
-Utility.randomInteger = function(n = Number.MAX_SAFE_INTEGER) {
+export function randomInteger(n = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * n);
 }
