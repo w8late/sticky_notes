@@ -1,6 +1,6 @@
 "use strict";
 
-import { incrMaxZIndex, saveZIndex } from "./util.js";
+import { getMaxZIndex, saveMaxZIndex } from "./util.js";
 import * as Color from "./note-color.js";
 
 class StickySaveData {
@@ -28,7 +28,7 @@ document.addEventListener("contextmenu", ev => {
 
 // clear all notes
 let clearBtn = document.getElementById("clear"); 
-clearBtn.style.zIndex = localStorage.getItem("czi") ?? 99;
+clearBtn.style.zIndex =  getMaxZIndex();
 clearBtn.style.display = "none";
 clearBtn.addEventListener("click", ev => {
     for (let n of Notes.div.children) {
@@ -128,10 +128,10 @@ function addDragListeners(elem) {
         elem.setPointerCapture(ev.pointerId); 
         offsetX = ev.offsetX;
         offsetY = ev.offsetY;
-        elem.style.zIndex = incrMaxZIndex();
-        saveZIndex();
-        clearBtn.style.zIndex++;
-        localStorage.setItem("czi", clearBtn.style.zIndex);
+        debugger;
+        elem.style.zIndex = getMaxZIndex();
+        saveMaxZIndex(Number(getMaxZIndex()) + 1);
+        clearBtn.style.zIndex = getMaxZIndex();
     });
     elem.addEventListener("pointerup", ev => elem.releasePointerCapture(ev.pointerId));
     elem.addEventListener("pointermove", ev => {

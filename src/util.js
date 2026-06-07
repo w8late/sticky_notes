@@ -1,13 +1,11 @@
 "use strict";
 
-let maxZIndex = localStorage.getItem("mzi") ?? 1;
-
-export function incrMaxZIndex() {
-    return maxZIndex++;
+export function getMaxZIndex() {
+    return localStorage.getItem("mzi") ?? 1;
 }
 
-export function saveZIndex() {
-    localStorage.setItem("mzi", maxZIndex);
+export function saveMaxZIndex(newZIndex = 1) {
+    localStorage.setItem("mzi", newZIndex);
 }
 
 export function randomInteger(n = Number.MAX_SAFE_INTEGER) {
