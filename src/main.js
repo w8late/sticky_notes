@@ -128,7 +128,6 @@ function addDragListeners(elem) {
         elem.setPointerCapture(ev.pointerId); 
         offsetX = ev.offsetX;
         offsetY = ev.offsetY;
-        debugger;
         elem.style.zIndex = getMaxZIndex();
         saveMaxZIndex(Number(getMaxZIndex()) + 1);
         clearBtn.style.zIndex = getMaxZIndex();
