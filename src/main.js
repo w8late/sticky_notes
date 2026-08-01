@@ -3,122 +3,151 @@
 import { getMaxZIndex, saveMaxZIndex } from "./util.js";
 import * as Color from "./note-color.js";
 
+const GlobalCustomEvents = Object.freeze({
+    saveNotes: new CustomEvent("savenotes"),
+    slideClearButtonOut: new CustomEvent("slideclearbuttonout"),
+    slideClearButtonIn: new CustomEvent("slideclearbuttonin"),
+});
+
 class StickySaveData {
     constructor() {
         this.styleLeft = `${Math.random() * (window.innerWidth-150)}px`;
         this.styleTop = `${Math.random() * (window.innerHeight-150)}px`;
         this.value = "";
     }
-}
 
-const Notes = {
-    all: [],
-    shouldSave: false,
-    div: document.getElementById("notes"),
-    animationDuration: 950,
-}
-
-// create new sticky note on right click (on the background)
-document.addEventListener("contextmenu", ev => {
-    if (ev.target.name !== "stickyNote") {
-        ev.preventDefault();
-        saveNewSticky();
+    static fromJSON(jsonRepr) {
+        let s = new StickySaveData();
+        s.styleLeft = jsonRepr.styleLeft;
+        s.styleTop = jsonRepr.styleTop;
+        s.value = jsonRepr.value;
+        return s;
     }
-});
 
-// clear all notes
+    saveToDocument(notes) {
+        // create textArea node from save data, and add it to the document
+        const color = Color.randomColor();
+        let textArea = document.createElement("textarea");
+        textArea.name = "stickyNote";
+        textArea.classList.add("note");
+        textArea.placeholder = "Type your notes here!"
+        this.copyToTextArea(textArea);
+        textArea.style.borderColor = color.borderColor;
+        textArea.style.background = color.background;
+        addDragListeners(textArea);
+        textArea.addEventListener("input", ev => { 
+            this.value = ev.target.value;
+            queueMicrotask(()=>document.dispatchEvent(GlobalCustomEvents.saveNotes));
+        });
+        textArea.addEventListener("pointerup", ev => {
+            this.styleLeft = `${textArea.style.left}`;
+            this.styleTop = `${textArea.style.top}`;
+            queueMicrotask(()=>document.dispatchEvent(GlobalCustomEvents.saveNotes));
+        });
+        textArea.addEventListener("contextmenu", ev => {
+            ev.preventDefault();
+            textArea.style.animationName = "bounce-out";
+            setTimeout(() => { 
+                textArea.remove();
+            }, notes.animationDuration);
+          
+            notes.list.splice(notes.list.indexOf(this), 1);
+            if (notes.list.length == 0) {
+                document.dispatchEvent(GlobalCustomEvents.slideClearButtonOut);
+            }
+            queueMicrotask(()=>document.dispatchEvent(GlobalCustomEvents.saveNotes))
+        });
+        document.dispatchEvent(GlobalCustomEvents.slideClearButtonIn);
+        notes.div.appendChild(textArea);
+    }
+
+    copyToTextArea(t) {
+        t.value = this.value;
+        t.style.left = this.styleLeft;
+        t.style.top = this.styleTop;
+    }
+}
+
+class NotesClass {
+    constructor() {
+        this.list = [];
+        this.shouldSave = false;
+        this.div = document.getElementById("notes");
+        this.animationDuration = 950;
+    }
+
+    // load notes
+    load() {
+        let notesJSON;
+        if ((notesJSON = localStorage.getItem("notes")) !== null) { 
+            let list = JSON.parse(notesJSON);
+            for (let n of list) {
+                let sd = StickySaveData.fromJSON(n);
+                sd.saveToDocument(notes);
+                this.list.push(sd);
+            }
+            if (this.list.length > 0) {
+                document.dispatchEvent(GlobalCustomEvents.slideClearButtonIn);
+            }
+        } else { // if this is the first time, then create a new list
+            console.error("could not parse localStorage.notes");
+        }
+    }
+
+    // clear all notes in the list
+    clear() {
+        //play disappearing animation for each note
+        for (let n of this.div.children) {
+            n.style.animationName = "bounce-out";
+        }
+
+        setTimeout(() => this.div.replaceChildren(), this.animationDuration);
+        this.list.length = 0;
+        queueMicrotask(()=>document.dispatchEvent(GlobalCustomEvents.saveNotes));
+    }
+}
+
+// clear button
 let clearBtn = document.getElementById("clear"); 
 clearBtn.style.zIndex =  getMaxZIndex();
 clearBtn.style.display = "none";
 clearBtn.addEventListener("click", ev => {
-    for (let n of Notes.div.children) {
-        n.style.animationName = "bounce-out";
-    }
-
-    setTimeout(() => Notes.div.replaceChildren(), Notes.animationDuration);
-    Notes.all.length = 0;
-    Notes.shouldSave = true;
+    notes.clear();
 
     // hide the button
     clearBtn.style.animationName = "slide-out";
     setTimeout(()=>clearBtn.style.display = "none", 900);
 });
 
-// buffer saves every 5 secs
-setInterval(() => {
-    if (Notes.shouldSave) localStorage.setItem("notes", JSON.stringify(Notes.all));
-    Notes.shouldSave = false;
-}, 5000);
+const notes = new NotesClass();
 
-// load notes
-+function(){
-    let item;
-    if ((item = localStorage.getItem("notes")) !== null) { 
-        Notes.all = JSON.parse(item);
-        for (let n of Notes.all) {
-            addStickyToDocument(n);
-        }
-        Notes.shouldSave = true;
-    } else { // if this is the first time, then create a new list
-        console.error("could not parse localStorage.notes");
-    }
-}()
+document.addEventListener("savenotes", ev => {
+    localStorage.setItem("notes", JSON.stringify(notes.list));
+});
 
-function saveNewSticky() {
-    let s = new StickySaveData();
-    Notes.all.push(s); 
-    addStickyToDocument(s);
-    Notes.shouldSave = true;
-}
-
-function copyStickySave(t, s) {
-    t.value = s.value;
-    t.style.left = s.styleLeft;
-    t.style.top = s.styleTop;
-}
-
-// create textArea node from save data, and add it to the document
-function addStickyToDocument(s) {
-    const color = Color.randomColor();
-    let textArea = document.createElement("textarea");
-    textArea.name = "stickyNote";
-    textArea.classList.add("note");
-    textArea.placeholder = "Type your notes here!"
-    copyStickySave(textArea, s);
-    textArea.style.borderColor = color.borderColor;
-    textArea.style.background = color.background;
-
-    textArea.addEventListener("input", ev => { 
-        s.value = ev.target.value;
-        Notes.shouldSave = true;
-    });
-    textArea.addEventListener("pointerup", ev => {
-        s.styleLeft = `${textArea.style.left}`;
-        s.styleTop = `${textArea.style.top}`;
-        Notes.shouldSave = true;
-    });
-    textArea.addEventListener("contextmenu", ev => {
-        textArea.style.animationName = "bounce-out";
-        setTimeout(() => { 
-            try { Notes.div.removeChild(textArea); } catch(err){}
-        }, Notes.animationDuration);
+// create new sticky note on right click (on the background)
+document.addEventListener("contextmenu", ev => {
+    if (ev.target.name !== "stickyNote") {
         ev.preventDefault();
-        Notes.all.splice(Notes.all.indexOf(s), 1);
-        if (Notes.all.length == 0) {
-            clearBtn.style.animationName = "slide-out";
-            setTimeout(()=>clearBtn.style.display = "none", 900);
-        }
-        Notes.shouldSave = true;
-        
-    });
+        let s = new StickySaveData();
+        s.saveToDocument(notes);
+        notes.list.push(s);
+        queueMicrotask(()=>document.dispatchEvent(GlobalCustomEvents.saveNotes));
+    }
+});
 
+document.addEventListener("slideclearbuttonin", ev => {
     // make the clear button slide in 
     clearBtn.style.animationName = "slide-in";
     clearBtn.style.display = "block"; 
-    
-    addDragListeners(textArea);
-    Notes.div.appendChild(textArea);
-}
+});
+
+document.addEventListener("slideclearbuttonout", ev => {
+    clearBtn.style.animationName = "slide-out";
+    setTimeout(()=>clearBtn.style.display = "none", 900);
+});
+
+notes.load();
 
 //https://stackoverflow.com/questions/24050738/javascript-how-to-dynamically-move-div-by-clicking-and-dragging *edited*
 

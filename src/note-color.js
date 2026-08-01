@@ -3,19 +3,19 @@
 import { randomInteger } from "./util.js";
 
 const noteColors = Object.freeze({
-    red: {
+    Red: {
         background: "#f08080",
         borderColor: "red",
     },
-    green: {
+    Green: {
         background: "#80f087",
         borderColor: "green",
     },
-    blue: {
+    Blue: {
         background: "#8980f0",
         borderColor: "blue",
     },
-    yellow: {
+    Yellow: {
         background: "#e9ed81",
         borderColor: "yellow",
     }
